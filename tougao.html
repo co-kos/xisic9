@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>投稿自助</title>
+    <title>自助投稿机</title>
     <style>
         * {
             margin: 0;
@@ -224,13 +224,19 @@
         <div class="tgme_background_pattern default"></div>
     </div>
     <div class="container">
-        <h1>投稿自助</h1>
+        <h1>自助投稿机</h1>
         <form id="submitForm">
 
             <!-- 标题 -->
             <div class="form-group">
                 <label>标题（必填，格式：#coser名 - 图包名 #标签 [图片视频数量]）<span class="required">*</span></label>
                 <input type="text" id="title" placeholder="示例：#奈汐酱nice - 猎狼女 #黑丝 #巨乳 [47P1V]" required>
+            </div>
+
+            <!-- 封面设置 -->
+            <div class="form-group">
+                <label>封面图片URL（非必填，未填写将自动使用图片区第一张）</label>
+                <input type="text" id="coverUrl" placeholder="请输入封面图片链接">
             </div>
 
             <!-- 图片区 -->
@@ -347,8 +353,17 @@
             const status = document.getElementById('status');
             
             const title = document.getElementById('title').value.trim();
+            let coverUrl = document.getElementById('coverUrl').value.trim();
             const imageContent = document.getElementById('imageContent').value.trim();
             const videoContent = document.getElementById('videoContent').value.trim();
+
+            // 如果未填写封面，自动提取图片区第一张图片URL
+            if (!coverUrl && imageContent) {
+                const imgMatch = imageContent.match(/<img[^>]+src=["']([^"']+)["']/i);
+                if (imgMatch) {
+                    coverUrl = imgMatch[1];
+                }
+            }
             const source = document.querySelector('input[name="source"]:checked')?.value;
 
             if (!title) {
@@ -369,6 +384,11 @@
             result = result.replace(/<h2 class="note-title">[^<]*<\/h2>/, `<h2 class="note-title">${escapeHtml(title)}</h2>`);
             result = result.replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escapeHtml(title)}">`);
             result = result.replace(/<meta itemprop="name" content="[^"]*">/, `<meta itemprop="name" content="${escapeHtml(title)}">`);
+            
+            // 替换封面图片
+            if (coverUrl) {
+                result = result.replace(/<meta property="og:image" content="[^"]*">/, `<meta property="og:image" content="${coverUrl}">`);
+            }
             
             // 自动更新时间为当前时间
             const now = new Date();
@@ -433,14 +453,15 @@
                 );
             }
 
-            // 生成文件名：标题前十个字的拼音首字母
+            // 生成文件名：标题前十个字的拼音首字母，去掉所有符号
             let fileName = '';
             if (typeof pinyinPro !== 'undefined') {
                 const arr = pinyinPro.pinyin(title, { toneType: 'none', type: 'array' });
-                fileName = arr.map(p => p.charAt(0)).join('').slice(0, 10);
+                fileName = arr.map(p => p.charAt(0)).join('');
             } else {
-                fileName = title.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
+                fileName = title;
             }
+            fileName = fileName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
             if (!fileName) fileName = 'untitled';
             fileName += '.html';
 
