@@ -435,7 +435,7 @@
             result = result.replace(/<time class="note-time">[^<]*<\/time>/, `<time class="note-time">${timeStr}\t图片/视频加载不出刷新</time>`);
 
             // 替换署名行
-            const displayAuthor = authorName || '神秘的匿名者';
+            const displayAuthor = authorName || '神秘投稿男';
             result = result.replace(/<p class="note-author"[^>]*>[\s\S]*?<\/p>/, `<p class="note-author" style="font-size:14px;color:#999;">本页由 ${escapeHtml(displayAuthor)} 使用<a href="https://co-kos.github.io/xisic9/tougao.html" target="_blank">自助投稿机</a>制作</p>`);
 
             // 插入图片内容（用户输入的就是HTML标签，直接原样粘贴）
